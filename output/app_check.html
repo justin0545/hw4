@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Campus Customs App Check</title>
+<style>
+  :root { --yale: #00356b; --yale-light: #286dc0; --gold: #ffc72c; --ink: #12213a; --muted: #5b6b82; --line: #dde5f0; --bg: #f6f8fc; --ok: #157f3d; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { background: linear-gradient(120deg, #001f42, var(--yale) 60%, var(--yale-light)); color: #fff; padding: 32px 20px 28px; }
+  header .wrap, main { max-width: 1080px; margin: auto; }
+  header h1 { margin: 0 0 6px; font-size: 2rem; letter-spacing: .02em; }
+  header p { margin: 0; opacity: .9; }
+  main { padding: 24px 20px 60px; }
+  .summary { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px 22px; margin-bottom: 28px; }
+  .summary h2 { margin: 0 0 10px; font-size: 1.15rem; color: var(--yale); }
+  table { border-collapse: collapse; width: 100%; font-size: .93rem; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; }
+  .pass { color: var(--ok); font-weight: 700; white-space: nowrap; }
+  section.check { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 22px; margin-bottom: 30px; box-shadow: 0 2px 8px rgba(0,31,66,.05); }
+  section.check h2 { margin: 0 0 4px; color: var(--yale); font-size: 1.45rem; }
+  .tag { display: inline-block; background: var(--gold); color: #001f42; font-weight: 800; font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; margin-bottom: 8px; }
+  .how { color: var(--muted); margin: 0 0 16px; font-size: .92rem; }
+  figure { margin: 0 0 18px; }
+  figure img { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 10px; }
+  figcaption { margin-top: 8px; font-size: .95rem; }
+  figcaption strong { color: var(--yale); }
+  .truth { background: #f5f8fd; border-radius: 10px; padding: 12px 14px; margin-top: 6px; }
+  .truth h3 { margin: 0 0 6px; font-size: .95rem; color: var(--yale); }
+  code { background: #eef2f8; padding: 1px 5px; border-radius: 4px; font-size: .88em; }
+  header code { background: rgba(255,255,255,.18); color: #fff; }
+  .summary, .truth { overflow-x: auto; } /* wide tables scroll inside their box on small screens */
+  section.check { overflow: hidden; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+  footer { color: var(--muted); font-size: .85rem; text-align: center; padding: 0 20px 30px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Campus Customs: Live Site Check</h1>
+    <p>Problem 11 · MGT 409E Homework 4 · tested 2026-10-18 against the running site (React frontend on <code>localhost:5173</code>, FastAPI + PydanticAI backend on <code>localhost:8000</code>)</p>
+  </div>
+</header>
+
+<main>
+  <div class="summary">
+    <h2>Summary</h2>
+    <table>
+      <tr><th>#</th><th>Check</th><th>What was compared</th><th>Result</th></tr>
+      <tr><td>1</td><td>Chat checks an item's inventory</td><td>Stylist's answer vs. the product page vs. the <code>catalogue</code> / <code>inventory</code> tables</td><td class="pass">✔ Pass: all 6 sizes and the price match</td></tr>
+      <tr><td>2</td><td>Category question → search-result cards on the page</td><td>"What hoodies do you have?" → cards on the Products page vs. hoodies in the database; a card opens its detail page</td><td class="pass">✔ Pass: 27 cards = 27 hoodies</td></tr>
+      <tr><td>3</td><td>Problem 9 usability features (Wish List, My Closet + recommendations)</td><td>Wish-list stock flags vs. inventory; closet items and recommendation reasons</td><td class="pass">✔ Pass</td></tr>
+    </table>
+    <p class="how" style="margin:12px 0 0">
+      <strong>How the screenshots were taken:</strong> a script (headless Microsoft Edge, driven over the DevTools protocol) logged in as the seeded test user
+      <code>test@campuscustoms.yale.edu</code>, typed into the chat and clicked cards like a shopper, and saved each screen at 1280×860.
+      Chat replies come from the live model (<code>gpt-5.6-luna</code> via the course Portkey gateway). "Database" values were read straight from
+      <code>data/campus_customs.db</code> with SQLite at test time.
+    </p>
+  </div>
+
+  <!-- ===================== CHECK 1 ===================== -->
+  <section class="check" id="check-1">
+    <span class="tag">Check 1</span>
+    <h2>Chat checks the inventory level of an item (honest stock and price from the database)</h2>
+    <p class="how">On the <em>Champion Reverse Weave Hoodie 1</em> product page, I asked the chat: <em>"How many of this hoodie are in stock in each size, and how much is it?"</em>
+      ("this" is resolved from the page the shopper is on, Problem 8).</p>
+
+    <figure>
+      <img src="app_check_images/inventory_chat.png" alt="Product page for the Champion Reverse Weave Hoodie 1 with the chat stylist answering the stock and price question">
+      <figcaption><strong>What this proves:</strong> the stylist answered with the exact price and per-size stock, "$68 … XS 0 (sold out), S 25, M 20, L 20, XL 0 (sold out), and XXL 15", and attached the product card. It looked the numbers up with its <code>get_product</code> tool and didn't guess.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="app_check_images/inventory_page.png" alt="The same product page showing the Sizes and availability grid">
+      <figcaption><strong>What this proves:</strong> the product page, which reads the same database through <code>/api/products/{id}</code>, shows the same numbers. XS and XL are struck through as sold out, S 25, M 20, L 20, XXL 15, $68.00, so the chat and the page agree.</figcaption>
+    </figure>
+
+    <div class="truth">
+      <h3>Database truth (SQLite, at test time)</h3>
+      <table>
+        <tr><th>Source</th><th>Price</th><th>XS</th><th>S</th><th>M</th><th>L</th><th>XL</th><th>XXL</th></tr>
+        <tr><td><code>catalogue</code> / <code>inventory</code></td><td>$68.00</td><td>0</td><td>25</td><td>20</td><td>20</td><td>0</td><td>15</td></tr>
+        <tr><td>Stylist's chat answer</td><td>$68</td><td>0 (sold out)</td><td>25</td><td>20</td><td>20</td><td>0 (sold out)</td><td>15</td></tr>
+        <tr><td>Product page</td><td>$68.00</td><td>Sold out</td><td>25</td><td>20</td><td>20</td><td>Sold out</td><td>15</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== CHECK 2 ===================== -->
+  <section class="check" id="check-2">
+    <span class="tag">Check 2</span>
+    <h2>Dynamic search-result cards appear after a category question</h2>
+    <p class="how">From the Home page, I asked the chat: <em>"What hoodies do you have?"</em></p>
+
+    <figure>
+      <img src="app_check_images/search_cards.png" alt="Products page showing a From your chat banner titled Hoodies with 27 matches and hoodie product cards, with the chat reply on the right">
+      <figcaption><strong>What this proves:</strong> the agent searched the catalogue and returned structured matches (<code>page_results</code> in the <code>/api/chat</code> response). The site then moved to Products and rendered them as cards (image, name, price, short description) under a "From your chat · <strong>Hoodies</strong> · 27 matches · garment type: hoodie" banner. The chat reply says "We have 27 hoodies, and they're on the page now!" and shows a "✓ 27 hoodies on the page" link.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="app_check_images/search_card_detail.png" alt="Detail page for the Basic Hoodie Big Yale reached by clicking the first chat-result card">
+      <figcaption><strong>What this proves:</strong> clicking the first card the chat put on the page (<em>Basic Hoodie Big Yale</em>) opens the same single-item page from Problem 3, with a large image, price, description and stock by size. The dynamic cards keep the normal detail-page behavior.</figcaption>
+    </figure>
+
+    <div class="truth">
+      <h3>Database truth</h3>
+      <table>
+        <tr><th>Check</th><th>Database</th><th>Site</th></tr>
+        <tr><td>Hoodies in the catalogue (garment type contains "hood")</td><td>27</td><td>27 cards on the page</td></tr>
+        <tr><td>Basic Hoodie Big Yale: price</td><td>$68.00</td><td>$68.00</td></tr>
+        <tr><td>Basic Hoodie Big Yale: XS / S / M / L / XL / XXL</td><td>15 / 5 / 5 / 8 / 2 / 25</td><td>15 / Only 5 left / Only 5 left / 8 / Only 2 left / 25</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===================== CHECK 3 ===================== -->
+  <section class="check" id="check-3">
+    <span class="tag">Check 3</span>
+    <h2>Problem 9 usability features: Wish List, and My Closet with recommendations</h2>
+    <p class="how">Logged in as the test user, I opened <strong>♡ Wish List</strong> and <strong>My Closet</strong> from the top bar.</p>
+
+    <figure>
+      <img src="app_check_images/wishlist.png" alt="Wish List page with the Branford 1/4 Zip (Size M in stock) and Boola Boola T Shirt (Size L is sold out)">
+      <figcaption><strong>What this proves:</strong> the Wish List shows saved items with <strong>live stock for the saved size</strong>: Branford 1/4 Zip "Size M in stock" (green) and Boola Boola T Shirt "<strong>Size L is sold out</strong>" (red). It also shows the running total ("2 items · $104.00 total") and the <em>I bought it</em> / <em>Remove</em> buttons.</figcaption>
+    </figure>
+
+    <figure>
+      <img src="app_check_images/closet_recommendations.png" alt="My Closet page with two owned hoodies and a Recommended for you section of eight picks with reasons">
+      <figcaption><strong>What this proves:</strong> My Closet lists what the shopper owns, with size and date added. Below it, "Recommended for you, Test" is built from their closet, wish list and chat history ("Based on 2 closet items, 2 wish-list items, 19 products from your chats"). Each pick gives its reason, for example "Goes with your District Vit Hoodie Vintage Sailor Bulldog (in your closet)" or "Similar to Boola Boola T Shirt on your wish list". Nothing they already own or have saved is recommended.</figcaption>
+    </figure>
+
+    <div class="truth">
+      <h3>Database truth</h3>
+      <table>
+        <tr><th>Saved item (table)</th><th>Saved size</th><th>Stock of that size in <code>inventory</code></th><th>Site shows</th></tr>
+        <tr><td>Branford 1 4 Zip (<code>wishlist_items</code>)</td><td>M</td><td>20</td><td>Size M in stock · $72.00</td></tr>
+        <tr><td>Boola Boola T Shirt (<code>wishlist_items</code>)</td><td>L</td><td>0</td><td>Size L is sold out · $32.00</td></tr>
+        <tr><td>Champion Reverse Weave Hoodie 1 (<code>closet_items</code>)</td><td>M</td><td>n/a</td><td>In closet, Size M</td></tr>
+        <tr><td>District Vit Hoodie Vintage Sailor Bulldog (<code>closet_items</code>)</td><td>M</td><td>n/a</td><td>In closet, Size M</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <div class="summary">
+    <h2>Other checks run the same day</h2>
+    <table>
+      <tr><th>Check</th><th>Result</th></tr>
+      <tr><td>Backend automated tests: <code>test_auth</code> 25, <code>test_tools</code> 11 (all 102 products and 612 size rows vs. SQL), <code>test_agent</code> 13, <code>test_memory</code> 22, <code>test_usability</code> 29</td><td class="pass">✔ 100 / 100</td></tr>
+      <tr><td>Frontend production build and lint (<code>npm run build</code>, <code>npm run lint</code>)</td><td class="pass">✔ Clean</td></tr>
+      <tr><td>Test-user login through <code>/api/auth/login</code> (PBKDF2 password check)</td><td class="pass">✔ 200 OK</td></tr>
+    </table>
+  </div>
+</main>
+<footer>Screenshots are in <code>app_check_images/</code> next to this file. Open this page by double-clicking it; no server is needed.</footer>
+</body>
+</html>

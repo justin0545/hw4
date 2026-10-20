@@ -1,0 +1,41 @@
+# --- Data pack: local only, never in git (assignment rule) ---
+# campus_customs.db, the product images, the seed backup and the generated
+# compressed images all live under data/.
+data/
+*.db
+*.db-journal
+*.sqlite
+
+# --- Secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.tmp
+
+# --- Frontend ---
+node_modules/
+frontend/dist/
+*.local
+
+# --- Local tooling / personal files ---
+.claude/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Problem 1 database viewer: it embeds rows from campus_customs.db, so it stays local
+db_review.html
+
+# Self-assessment for the student, not part of the submission
+grading_report.md
+
+# Audit files the server sets aside if one is ever unreadable
+output/audit_trail.corrupt-*.json
